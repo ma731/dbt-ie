@@ -1,0 +1,16 @@
+# Normalize line endings to LF across the repo.
+# Prevents CRLF warnings on Windows while keeping macOS/Linux checkouts clean.
+* text=auto eol=lf
+*.sql text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+
+# Binary files — never touch
+*.parquet binary
+*.duckdb binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.svg binary
