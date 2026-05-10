@@ -1,8 +1,60 @@
-# Midterm Study Guide — Sessions 1-7
+---
+marp: true
+paginate: true
+size: 16:9
+style: |
+  section {
+    font-size: 17px;
+    padding: 30px 50px;
+    background: #fafafa;
+  }
+  h1 {
+    font-size: 30px;
+    color: #1a365d;
+    border-bottom: 2px solid #2c5282;
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+  }
+  h2 {
+    font-size: 22px;
+    color: #2c5282;
+    margin-top: 6px;
+    margin-bottom: 10px;
+  }
+  h3 { font-size: 18px; color: #2d3748; }
+  table { font-size: 14px; border-collapse: collapse; }
+  th { background: #e2e8f0; padding: 4px 8px; }
+  td { padding: 3px 8px; border-bottom: 1px solid #cbd5e0; }
+  code { font-size: 14px; background: #edf2f7; padding: 1px 4px; border-radius: 3px; }
+  pre { font-size: 13px; padding: 8px 12px; background: #2d3748; color: #f7fafc; }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  ul, ol { margin: 4px 0; }
+  li { margin: 2px 0; }
+  strong { color: #1a365d; }
+  em { color: #4a5568; }
+  section.lead { text-align: center; padding-top: 100px; }
+  section.lead h1 { font-size: 44px; border: none; }
+---
 
-**Exam date:** Friday 2026-05-22 · **Format:** multiple-choice ("tipo test") · **Goal:** 100/100
+<!-- _class: lead -->
 
-Each section is ~1 page of the most exam-likely content. **Bold = high-value memorization.** Italic asides flag gotchas.
+# Midterm Study Guide
+
+## Sessions 1–7
+
+**Exam date:** Friday 2026-05-22
+**Format:** multiple-choice ("tipo test")
+**Goal:** 100 / 100
+
+---
+
+## How to use this guide
+
+- Each section condenses one session into the most exam-likely content.
+- **Bold = high-value memorization.** *Italic asides flag gotchas.*
+- After reading: take the 50-question practice quiz (separate file).
+
+**Recommended pace:** 1 session per day for 7 days, then 3-day practice, then 2-day review.
 
 ---
 
@@ -10,17 +62,22 @@ Each section is ~1 page of the most exam-likely content. **Bold = high-value mem
 
 **Analytics Engineering** = applying **software engineering principles** (version control, CI/CD, automated testing, modular code) to data transformation. It bridges Data Engineering (ingestion) and Data Analysis (reporting).
 
-**ADLC** — Analytics Development Lifecycle, 4 stages: **Build → Collaborate → Deploy → Monitor**.
+**ADLC** — Analytics Development Lifecycle, 4 stages:
+**Build → Collaborate → Deploy → Monitor**
 
 **ELT vs ETL**:
-| | ETL | ELT |
+|  | ETL | ELT |
 |---|---|---|
 | Transform happens | **Before** loading | **After** loading (in the warehouse) |
 | Compute | Staging server | Warehouse |
 | Tools | Informatica, SSIS | **dbt**, SQL |
 | Modern stack? | Legacy | Standard |
 
-**dbt is the "T" in ELT** — it transforms data already in your warehouse. dbt does NOT extract or load.
+**dbt is the "T" in ELT** — transforms data already in your warehouse. dbt does NOT extract or load.
+
+---
+
+## Session 1 (cont.) — Roles, dbt, certification
 
 **Data team roles** (left → right):
 - **Data Engineer** — pipelines, ingestion (E + L)
@@ -33,18 +90,13 @@ Each section is ~1 page of the most exam-likely content. **Bold = high-value mem
 - **Control plane**: testing, docs, lineage in one place
 
 **dbt Certification** = 65 MC questions, 2 hours, 65% pass. **8 domains**:
-1. Developing dbt models
-2. Model governance
-3. Debugging data modeling errors
-4. Managing data pipelines
-5. Implementing dbt tests
-6. Creating/maintaining documentation
-7. Implementing external dependencies
-8. Leveraging dbt state
+1. Developing dbt models · 2. Model governance · 3. Debugging modeling errors
+4. Managing data pipelines · 5. Implementing dbt tests · 6. Creating/maintaining docs
+7. Implementing external dependencies · 8. Leveraging dbt state
 
 ---
 
-## Session 2 — Setting Up dbt & First Models
+## Session 2 — Setup & DuckDB
 
 **DuckDB** = "SQLite for analytics." **In-process** (no server), **columnar**, **reads Parquet/CSV directly**. Our `my_database.duckdb` file IS the warehouse.
 
@@ -62,24 +114,31 @@ Each section is ~1 page of the most exam-likely content. **Bold = high-value mem
 3. **Project directory** (next to `dbt_project.yml`) ← our setup
 4. `~/.dbt/profiles.yml` global
 
-**Project structure** (memorize):
+---
+
+## Session 2 (cont.) — Project structure
+
 ```
 dbt-ie/
-├── dbt_project.yml         # project config (name, paths, defaults)
-├── profiles.yml            # connection (adapter, path, schema)
-├── packages.yml            # external packages
-├── models/                 # SQL + Python transformations
-│   ├── staging/
-│   ├── intermediate/
-│   └── marts/
-├── seeds/                  # static CSVs → tables
-├── macros/                 # reusable Jinja
-├── snapshots/              # SCD Type 2 (later sessions)
-├── tests/                  # singular (custom) tests
-├── analyses/               # ad-hoc SQL, never run by dbt run
-├── target/                 # compiled + run artifacts (gitignored)
-└── logs/                   # dbt logs (gitignored)
+├── dbt_project.yml    # project config (name, paths, defaults)
+├── profiles.yml       # connection (adapter, path, schema)
+├── packages.yml       # external packages
+├── models/            # SQL + Python transformations
+│   ├── staging/       │   ├── intermediate/   │   └── marts/
+├── seeds/             # static CSVs → tables
+├── macros/            # reusable Jinja
+├── snapshots/         # SCD Type 2 (later)
+├── tests/             # singular custom tests
+├── analyses/          # ad-hoc SQL — NEVER run by dbt run
+├── target/            # compiled + run artifacts (gitignored!)
+└── logs/              # dbt logs (gitignored)
 ```
+
+**Naming conventions**: `stg_*` (staging) · `int_*` (intermediate) · `dim_*` (dimensions) · `mart_*` (facts)
+
+---
+
+## Session 2 (cont.) — ref() & target/
 
 **`ref()` matters because**:
 - Resolves schema/table **at compile time** (portable across dev/staging/prod)
@@ -88,22 +147,16 @@ dbt-ie/
 
 **`target/` directory**:
 - `target/compiled/` — Jinja rendered, no DDL. *What dbt would send.*
-- `target/run/` — Wrapped in materialization DDL (e.g., `CREATE VIEW AS ...`). *What dbt actually executed.*
+- `target/run/` — Wrapped in materialization DDL (`CREATE VIEW AS ...`). *What dbt actually executed.*
 
-*Always check compiled SQL when debugging — it's ground truth.*
-
-**Naming conventions**:
-- `stg_*` — staging
-- `int_*` — intermediate
-- `dim_*` — dimensions (mart layer)
-- `mart_*` — facts/aggregates (mart layer)
+*Always check compiled SQL when debugging — it is ground truth.*
 
 ---
 
-## Foundations (between Session 2 & 3)
+## Foundations — DB vs DWH, dbt's role
 
 **Database (OLTP) vs Data Warehouse (OLAP)**:
-| | DB (OLTP) | DWH (OLAP) |
+|  | DB (OLTP) | DWH (OLAP) |
 |---|---|---|
 | Job | Run the app | Answer analytical questions |
 | Workload | Many small reads/writes | Big scans + aggregations |
@@ -118,19 +171,24 @@ dbt-ie/
 | Documentation generator | A scheduler (out of the box) |
 | Git-versioned transformation code | A BI/dashboarding tool |
 
-**`dbt run` flow** (memorize the order):
+---
+
+## Foundations (cont.) — `dbt run` flow
+
+Memorize the order:
+
 1. **Reads** → `dbt_project.yml` + `profiles.yml` + `models/`
-2. **Parses** → builds DAG from `ref()` and `source()`
+2. **Parses** → builds DAG from `ref()` and `source()` calls
 3. **Compiles** → Jinja → pure SQL → `target/compiled/`
 4. **Connects** → opens DuckDB via `profiles.yml`
 5. **Executes** → models in DAG order, materializes tables/views
 6. **Logs** → writes `run_results.json` + `manifest.json` to `target/`
 
-`target/` is **disposable** — delete anytime, regenerate.
+**`target/` is disposable** — delete anytime, regenerate.
 
 ---
 
-## Session 3 — Sources, Seeds & First Tests
+## Session 3 — Sources, Staging, Seeds
 
 **Sources** = raw data in the warehouse, loaded by an EL tool (or `create_db.py`).
 Defined in `models/sources.yml`. Reference with `{{ source('raw', 'customers') }}`.
@@ -141,14 +199,18 @@ Defined in `models/sources.yml`. Reference with `{{ source('raw', 'customers') }
 **Seeds** = static CSVs in `seeds/`. Loaded with `dbt seed`. Reference with `{{ ref('segments') }}` (same as a model).
 *Do NOT use for large raw data.*
 
-**Source freshness** — defined in `sources.yml`:
+**Source freshness** in `sources.yml`:
 ```yaml
 freshness:
   warn_after:  {count: 12, period: hour}
   error_after: {count: 24, period: hour}
 loaded_at_field: loaded_at
 ```
-Run: `dbt source freshness`.
+Run: `dbt source freshness`
+
+---
+
+## Session 3 (cont.) — Tests & build
 
 **Generic tests (4 built-in)**:
 | Test | Checks |
@@ -168,14 +230,15 @@ columns:
 **`dbt build`** = `run` + `test` + `seed` + `snapshot` in DAG order. **Prefer over `dbt run`.** If a test fails, downstream models won't run — bad data is contained.
 
 **Codegen package** generates boilerplate:
-- `codegen.generate_source('main', database_name='my_database')` → sources.yml content
-- `codegen.generate_base_model(source_name='raw', table_name='customers')` → staging SQL
+- `codegen.generate_source(...)` → sources.yml
+- `codegen.generate_base_model(...)` → staging SQL
 
 ---
 
-## Session 4 — Modeling Layers, Lineage & Business Logic
+## Session 4 — DRY, layers, DAG
 
-**DRY principle** — Don't Repeat Yourself. Build once, `ref()` many times. Benefits: maintainability, consistency (one definition of "revenue").
+**DRY** = Don't Repeat Yourself. Build once, `ref()` many times.
+Benefits: maintainability, consistency (one definition of "revenue").
 
 **The four layers**:
 1. **Source / Seed** (raw)
@@ -186,23 +249,31 @@ columns:
 **DAG** — Directed Acyclic Graph:
 - **Directed**: data flows source → mart (one way)
 - **Acyclic**: no loops (a model can't depend on itself)
-- **Graph**: nodes = models, edges = `ref()` and `source()` calls
+- **Graph**: nodes = models, edges = `ref()` / `source()` calls
 
-dbt builds the DAG automatically from your `ref()` calls — never written by hand.
+dbt builds the DAG automatically — never written by hand.
 
-**Selector syntax** — memorize these:
+---
+
+## Session 4 (cont.) — Selectors
+
+Memorize selector syntax (`-s` / `--select`):
+
 | Syntax | Meaning |
 |---|---|
 | `mart_orders` | just this model |
 | `+mart_orders` | this + **upstream** (ancestors) |
 | `mart_orders+` | this + **downstream** (descendants) |
 | `+mart_orders+` | this + both directions |
-| `1+mart_orders` | this + **1 level** upstream |
+| `1+mart_orders` | this + **1 level** upstream only |
 | `staging` | everything in the staging folder |
 | `tag:finance` | everything tagged "finance" |
 | `path:models/marts` | everything in that path |
 
-**Five SQL patterns**:
+---
+
+## Session 4 (cont.) — Five SQL patterns
+
 1. **Cleaning & casting** (staging) — `trim(lower(email))`, `::date`, `coalesce`
 2. **`case when` classification** — encode business buckets once
 3. **Joins** (intermediate) — preserve grain, comment why left vs inner
@@ -220,7 +291,7 @@ Same `ref()`, same DAG, same tests. Requires Python-capable warehouse.
 
 ---
 
-## Session 5 — Practice: Building the Foundation
+## Session 5 — Practice: foundation
 
 This session is hands-on, but the **concepts** likely on the exam:
 
@@ -230,57 +301,22 @@ This session is hands-on, but the **concepts** likely on the exam:
 
 **`mart_orders` is a wide table** — analysts get one table with everything (status, items, shipping, payment). BI tools don't need to re-join.
 
-**`mart_revenue_by_segment`** = `group by customer_segment`, `sum(total_amount)`, `avg(total_amount)` → strategic view.
-
+**`mart_revenue_by_segment`** = `group by customer_segment`, `sum(total_amount)`, `avg(total_amount)`.
 **`mart_product_performance`** = `group by product_id, category_name`, `sum(revenue)`, `sum(quantity)`.
 
-**Python model** (`customers_enriched_python`) — used when SQL string parsing is messy (e.g., parsing email domains). Uses Polars.
-
-**Verification**: `dbt build` → all models + tests pass + lineage flows left-to-right cleanly.
+**Python model** — `customers_enriched_python` uses Polars for messy text processing (email domains).
 
 ---
 
-## Session 6 — Materializations & Grants
+## Session 6 — Materializations
 
 **Four core materializations**:
 | Type | DDL | Pros | Cons | Default use |
 |---|---|---|---|---|
 | **View** | `CREATE VIEW` | Fast build, always fresh | Slow query | **Staging** |
-| **Table** | `CREATE TABLE AS SELECT` (CTAS) | Fast query | Slow build, storage cost | **Marts** |
-| **Ephemeral** | None (inlined as CTE) | No clutter in DB | Hard to debug | Some intermediate |
-| **Incremental** | Update existing table | Efficient for big data | Complex | Big fact tables (Session 10) |
-
-**Configuring materialization**:
-
-**Project-level** (`dbt_project.yml`):
-```yaml
-models:
-  dbt_ie:
-    staging:
-      +materialized: view
-    intermediate:
-      +materialized: ephemeral
-    marts:
-      +materialized: table
-```
-
-**Model-level** (in the `.sql` file):
-```sql
-{{ config(materialized='table') }}
-```
-
-**Model-level overrides project-level.** Memorize this.
-
-**Grants** in `dbt_project.yml`:
-```yaml
-models:
-  +grants:
-    select: ['reporter', 'analyst']
-  my_sensitive_model:
-    +grants:
-      select: ['admin']
-```
-dbt runs `GRANT` after creating the model.
+| **Table** | `CREATE TABLE AS SELECT` | Fast query | Slow build, storage cost | **Marts** |
+| **Ephemeral** | None — inlined as CTE | No clutter in DB | Hard to debug | Some intermediate |
+| **Incremental** | Update existing table | Efficient on big data | Complex | Big fact tables (S10) |
 
 **Performance trade-offs**:
 - Start with **views** (cheap)
@@ -289,47 +325,82 @@ dbt runs `GRANT` after creating the model.
 
 ---
 
-## Session 7 — Jinja, Macros & Packages
+## Session 6 (cont.) — Configuring materialization
 
-**Packages** — defined in `packages.yml`:
+**Project-level** (`dbt_project.yml`):
+```yaml
+models:
+  dbt_ie:
+    staging:      {+materialized: view}
+    intermediate: {+materialized: ephemeral}
+    marts:        {+materialized: table}
+```
+
+**Model-level** (in the `.sql` file):
+```sql
+{{ config(materialized='table') }}
+```
+
+**Model-level overrides project-level.** Memorize this — common exam trap.
+
+**Grants** in `dbt_project.yml`:
+```yaml
+models:
+  +grants:
+    select: ['reporter', 'analyst']
+```
+dbt runs `GRANT` after creating the model.
+
+---
+
+## Session 7 — Packages
+
+**Packages** declared in `packages.yml`:
 ```yaml
 packages:
   - package: dbt-labs/dbt_utils
     version: 1.1.1
+  - package: dbt-labs/codegen
+    version: 0.12.1
+  - package: calogica/dbt_expectations
+    version: 0.10.1
 ```
-Install: `dbt deps`. Browse: `hub.getdbt.com`.
+Install: **`dbt deps`**. Browse: **hub.getdbt.com**.
 
 **Key packages**:
 | Package | Purpose |
 |---|---|
 | **dbt_utils** | Surrogate keys, unions, pivots, generic SQL helpers |
-| **codegen** | Generate YAML/SQL boilerplate |
-| **dbt_expectations** | Great Expectations–style tests |
+| **codegen** | Generate YAML/SQL boilerplate from sources |
+| **dbt_expectations** | Great Expectations–style data quality tests |
 
-**Jinja basics**:
-- Variables: `{{ my_var }}`
-- Control flow: `{% if %}`, `{% for %}`, `{% set %}`
-- Functions: `{{ ref() }}`, `{{ source() }}`
-- Comments: `{# ... #}`
-- The `loop.last` flag: for skipping commas on last iteration
+---
 
-**Jinja example**:
-```sql
-select
-{% for col in ['a', 'b', 'c'] %}
-    sum({{ col }}) as sum_{{ col }}{% if not loop.last %},{% endif %}
-{% endfor %}
-from {{ ref('my_model') }}
-```
+## Session 7 (cont.) — Jinja basics
 
-**`target` variable** (the active dbt target):
+| Syntax | Meaning |
+|---|---|
+| `{{ ... }}` | Expression — output a value |
+| `{% ... %}` | Statement — control flow / set / for / if |
+| `{# ... #}` | Comment (not output) |
+| `{% set x = 10 %}` | Variable assignment |
+| `{% if cond %} ... {% endif %}` | Conditional |
+| `{% for item in list %} ... {% endfor %}` | Loop |
+| `loop.first`, `loop.last`, `loop.index` | Loop state |
+| `{{ target.name }}` | The current target ("dev", "prod"…) |
+
+**`target.name` filter example** (limit data in dev):
 ```sql
 {% if target.name == 'dev' %}
-  where order_date > '2024-01-01'  -- limit data in dev
+  where order_date > '2024-01-01'
 {% endif %}
 ```
 
-**Custom macros** — in `macros/`:
+---
+
+## Session 7 (cont.) — Macros & dbt-utils
+
+**Custom macros** in `macros/`:
 ```sql
 {% macro cents_to_dollars(column_name) %}
     ({{ column_name }} / 100)::numeric(16, 2)
@@ -339,37 +410,44 @@ Use as `{{ cents_to_dollars('amount_cents') }}`.
 
 **dbt-utils essentials**:
 - `dbt_utils.generate_surrogate_key(['col1', 'col2'])` — hash-based composite PK
-- `dbt_utils.union_relations(relations=[ref('a'), ref('b')])` — vertical concatenation of compatible tables
+- `dbt_utils.union_relations(relations=[ref('a'), ref('b')])` — vertical concat
 
 **Git workflow** (testable on cert):
-1. `git checkout -b feature/foo` (branch)
+1. `git checkout -b feature/foo`
 2. Commit with meaningful messages
 3. Push to remote
 4. Open PR for review
-5. Merge after approval
-
-**Atomic commits** — one logical change per commit.
+5. Merge after approval — **atomic commits**: one logical change per commit
 
 ---
 
-## Quick "if asked, answer" facts
+## "If asked, answer" — quick recall
 
 - **Materialization for staging?** `view`
 - **Materialization for marts?** `table`
-- **Where do tests live?** YAML file next to the model, or `tests/` for singular
+- **Where do tests live?** YAML next to model, or `tests/` for singular
 - **What does `dbt build` do?** run + test + seed + snapshot in DAG order
-- **What does `+` before a model name mean?** include upstream
-- **What does `+` after a model name mean?** include downstream
+- **`+model` means?** include upstream (ancestors)
+- **`model+` means?** include downstream (descendants)
 - **Where is compiled SQL?** `target/compiled/`
 - **Where is executed SQL?** `target/run/`
-- **What's in `target/`?** disposable artifacts, always gitignored
-- **`source()` vs `ref()`?** `source()` for raw tables defined in `sources.yml`. `ref()` for dbt-built models AND seeds
+- **`source()` vs `ref()`?** `source()` for raw tables in `sources.yml`. `ref()` for dbt-built models AND seeds
 - **Where do macros live?** `macros/`
 - **How to install packages?** `dbt deps` (reads `packages.yml`)
-- **Default test that fails on duplicates?** `unique`
-- **Default test that fails on NULLs?** `not_null`
-- **Test that enforces FK?** `relationships`
-- **Test on a fixed list of allowed values?** `accepted_values`
-- **What does `dbt seed` do?** loads CSVs from `seeds/` as tables
-- **Can seeds be referenced with `ref()`?** Yes
+- **Test for duplicates?** `unique`
+- **Test for NULLs?** `not_null`
+- **Test for FK integrity?** `relationships`
+- **Test for allowed values list?** `accepted_values`
+- **Can seeds be `ref()`d?** Yes
 - **Is `target/` versioned?** No — gitignored
+
+---
+
+<!-- _class: lead -->
+
+# Good luck
+
+## Then go take the 50-question quiz.
+
+*Practice questions → `practice_questions.html`*
+*Quick reference → `cheatsheet.pdf`*

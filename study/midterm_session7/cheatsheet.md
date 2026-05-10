@@ -1,6 +1,47 @@
-# dbt Cheatsheet — Sessions 1-7
+---
+marp: true
+paginate: true
+size: 16:9
+style: |
+  section {
+    font-size: 16px;
+    padding: 25px 40px;
+    background: #fafafa;
+  }
+  h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #2c5282;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-size: 20px;
+    color: #2c5282;
+    margin-top: 4px;
+    margin-bottom: 8px;
+  }
+  h3 { font-size: 17px; color: #2d3748; }
+  table { font-size: 13px; border-collapse: collapse; }
+  th { background: #e2e8f0; padding: 4px 8px; text-align: left; }
+  td { padding: 3px 8px; border-bottom: 1px solid #cbd5e0; vertical-align: top; }
+  code { font-size: 13px; background: #edf2f7; padding: 1px 4px; border-radius: 3px; }
+  pre { font-size: 12px; padding: 6px 10px; background: #2d3748; color: #f7fafc; }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  ul, ol { margin: 4px 0; }
+  li { margin: 1px 0; }
+  strong { color: #1a365d; }
+  section.lead { text-align: center; padding-top: 100px; }
+  section.lead h1 { font-size: 44px; border: none; }
+---
 
-One-page reference. Print this. The exam tests recall of commands, syntax, and config.
+<!-- _class: lead -->
+
+# dbt Cheatsheet
+
+## Sessions 1–7
+
+*One-page reference for the Session 7 midterm.*
 
 ---
 
@@ -21,11 +62,11 @@ One-page reference. Print this. The exam tests recall of commands, syntax, and c
 | `dbt ls` | List nodes (models, tests, seeds…) |
 | `dbt run-operation <macro>` | Execute a macro outside model context |
 
-Flags worth remembering: `--profiles-dir`, `--project-dir`, `--target <name>`, `--full-refresh`.
+Flags: `--profiles-dir`, `--project-dir`, `--target <name>`, `--full-refresh`
 
 ---
 
-## Selector syntax (`-s` / `--select`)
+## Selector syntax (`-s`)
 
 | Selector | Meaning |
 |---|---|
@@ -47,8 +88,8 @@ Flags worth remembering: `--profiles-dir`, `--project-dir`, `--target <name>`, `
 
 ```
 dbt-ie/
-├── dbt_project.yml         # project config — name, paths, default materializations
-├── profiles.yml            # connection — adapter, db path, schema, target
+├── dbt_project.yml         # project config (name, paths, defaults)
+├── profiles.yml            # connection (adapter, db path, schema)
 ├── packages.yml            # external dbt packages
 ├── models/                 # transformations (.sql + .py + .yml)
 │   ├── staging/            # one stg_ per source, views
@@ -80,27 +121,19 @@ default:
     dev: {type: duckdb, path: my_database.duckdb, schema: main}
 ```
 
----
-
 ## `dbt_project.yml` essentials
 
 ```yaml
 name: 'dbt_ie'
 profile: 'default'           # which profile to use
-
 model-paths: ["models"]
 seed-paths:  ["seeds"]
-
 models:
   dbt_ie:
-    staging:
-      +materialized: view
-    intermediate:
-      +materialized: ephemeral
-    marts:
-      +materialized: table
-    +grants:
-      select: ['reporter', 'analyst']
+    staging:      {+materialized: view}
+    intermediate: {+materialized: ephemeral}
+    marts:        {+materialized: table}
+    +grants: {select: ['reporter', 'analyst']}
 ```
 
 ---
@@ -115,35 +148,32 @@ models:
 
 Both build the DAG. Hardcoded names (`from main.customers`) **break lineage** — never do it.
 
----
-
 ## Materializations
 
 | Type | DDL | Build | Query | Default for |
 |---|---|---|---|---|
 | `view` | `CREATE VIEW` | Fast | Slow | **staging** |
-| `table` | `CREATE TABLE AS SELECT` (CTAS) | Slow | Fast | **marts** |
-| `ephemeral` | None — inlined as CTE | n/a | n/a (inlined) | sometimes intermediate |
+| `table` | `CREATE TABLE AS SELECT` | Slow | Fast | **marts** |
+| `ephemeral` | None — inlined as CTE | n/a | n/a | sometimes intermediate |
 | `incremental` | Update existing table | Fast on big data | Fast | big facts |
 
-**Set materialization, two ways:**
+---
 
-Project-level (`dbt_project.yml`):
+## Setting materialization
+
+**Project-level** (`dbt_project.yml`):
 ```yaml
 models:
   dbt_ie:
-    staging:
-      +materialized: view
+    staging: {+materialized: view}
 ```
 
-Model-level (top of `.sql` file):
+**Model-level** (top of `.sql` file):
 ```sql
 {{ config(materialized='table') }}
 ```
 
 **Model-level overrides project-level.**
-
----
 
 ## Generic tests (built-in)
 
@@ -154,7 +184,10 @@ Model-level (top of `.sql` file):
 | `accepted_values` | Values outside allowed set |
 | `relationships` | Foreign-key integrity to another model |
 
-In YAML:
+---
+
+## Tests in YAML
+
 ```yaml
 version: 2
 models:
@@ -189,7 +222,11 @@ models:
 | `{{ target.name }}` | The current target ("dev", "prod"…) |
 | `{{ config(materialized='table') }}` | Model config |
 
-**Trailing comma trick** in a loop:
+---
+
+## Jinja patterns
+
+**Trailing-comma trick** (in a loop):
 ```sql
 select
 {% for col in cols %}
@@ -198,8 +235,9 @@ select
 from {{ ref('my_model') }}
 ```
 
-**Target-aware filter** (limit data in dev):
+**Target-aware filter** (limit data in dev only):
 ```sql
+select * from {{ ref('stg_orders') }}
 {% if target.name == 'dev' %}
   where order_date > '2024-01-01'
 {% endif %}
@@ -218,7 +256,8 @@ from {{ ref('my_model') }}
 
 Use in a model:
 ```sql
-select {{ cents_to_dollars('amount_cents') }} from {{ ref('stg_payments') }}
+select {{ cents_to_dollars('amount_cents') }}
+from {{ ref('stg_payments') }}
 ```
 
 Run a macro outside a model:
@@ -230,8 +269,8 @@ dbt run-operation <macro_name> --args '{"key": "value"}'
 
 ## Packages
 
-`packages.yml`:
 ```yaml
+# packages.yml
 packages:
   - package: dbt-labs/dbt_utils
     version: 1.1.1
@@ -240,14 +279,13 @@ packages:
   - package: calogica/dbt_expectations
     version: 0.10.1
 ```
-
-Install: `dbt deps`.
+Install: **`dbt deps`**
 
 | Package | Highlights |
 |---|---|
 | **dbt_utils** | `generate_surrogate_key`, `union_relations`, `pivot`, `unpivot` |
 | **codegen** | `generate_source`, `generate_base_model`, `generate_model_yaml` |
-| **dbt_expectations** | `expect_column_values_to_be_between`, `expect_column_values_to_be_of_type` |
+| **dbt_expectations** | `expect_column_values_to_be_between`, `..._to_be_of_type` |
 
 ---
 
@@ -255,22 +293,20 @@ Install: `dbt deps`.
 
 | Path | What |
 |---|---|
-| `target/compiled/<project>/models/...` | Jinja → SQL, no DDL |
-| `target/run/<project>/models/...` | Wrapped in materialization DDL |
+| `target/compiled/<proj>/models/...` | Jinja → SQL, no DDL |
+| `target/run/<proj>/models/...` | Wrapped in materialization DDL |
 | `target/manifest.json` | Full parsed project metadata |
-| `target/run_results.json` | Result of last invocation (timings, statuses) |
-| `target/catalog.json` | Column-level docs metadata (after `dbt docs generate`) |
+| `target/run_results.json` | Last invocation result (timings, statuses) |
+| `target/catalog.json` | Column-level docs (after `dbt docs generate`) |
 
 All disposable. Always in `.gitignore`.
 
----
-
-## Layer responsibilities (memorize)
+## Layer responsibilities
 
 | Layer | Prefix | Materialization | Job |
 |---|---|---|---|
-| Source | (n/a) | — | Raw data in warehouse |
-| Seed | (n/a) | table | Static CSV lookups |
+| Source | — | — | Raw data in warehouse |
+| Seed | — | table | Static CSV lookups |
 | Staging | `stg_` | view | 1:1 with source, clean/rename/cast |
 | Intermediate | `int_` | ephemeral or view | Joins, calculated fields, dedup |
 | Marts | `dim_` / `mart_` | table | Business-ready facts/dims |
@@ -282,34 +318,41 @@ All disposable. Always in `.gitignore`.
 | Pattern | Where | Example |
 |---|---|---|
 | Cleaning & casting | Staging | `trim(lower(email))`, `::date` |
-| `case when` classification | Intermediate | `case when total > 500 then 'high' …` |
+| `case when` classification | Intermediate | `case when total > 500 then 'high'` |
 | Joins | Intermediate | `from a left join b using (id)` |
 | Aggregation | Marts | `group by segment, month` |
-| Window functions | Intermediate / Marts | `row_number() over (partition by ... order by ...)` |
+| Window functions | Intermediate / Marts | `row_number() over (partition by …)` |
 
----
-
-## Git workflow (testable)
+## Git workflow
 
 1. `git checkout -b feature/<thing>` (branch)
-2. Make atomic commits — one logical change each
+2. Make **atomic commits** — one logical change each
 3. `git push origin feature/<thing>` (push)
-4. Open a Pull Request for review
-5. Merge after approval
+4. Open a **Pull Request** for review
+5. **Merge** after approval
 
 ---
 
-## Common gotchas
+## Common gotchas (exam-favorite traps)
 
-- **`ref()` on a seed**: works (seeds count as nodes), use `ref('segments')` not `source(...)`.
-- **`target/compiled/` vs `target/run/`**: compiled = Jinja resolved, run = DDL-wrapped.
-- **Model-level `config()` always wins** over project-level in `dbt_project.yml`.
-- **`dbt run` doesn't run tests**. Use `dbt build` to get both.
-- **A failed test stops downstream models** in `dbt build` (this is the point).
-- **Profile lookup order** matters: CLI flag > env var > project dir > `~/.dbt/`.
-- **Staging shouldn't join**. If you're writing a join in a `stg_` model, it belongs in `int_`.
-- **`source()` takes two args**: source name, table name. Memorize: `{{ source('raw', 'customers') }}`.
-- **`select * from` works in compiled SQL** but is brittle — prefer explicit column lists in staging.
-- **`analyses/`** holds SQL that is **never run** by `dbt run` — for ad-hoc exploration.
-- **`incremental`** is a materialization (Session 10 territory) — know the name even if not the details.
-- **Ephemeral models** don't exist in the DB — you can't query them in DuckDB CLI, only via downstream models.
+- **`ref()` on a seed works** — seeds are nodes, use `ref('segments')` not `source(...)`
+- **`target/compiled/` vs `target/run/`** — compiled = Jinja resolved, run = DDL-wrapped
+- **Model-level `config()` always wins** over project-level in `dbt_project.yml`
+- **`dbt run` does NOT run tests** — use `dbt build` for both
+- **A failed test stops downstream models** in `dbt build` (this is the point)
+- **Profile lookup**: CLI flag > env var > project dir > `~/.dbt/`
+- **Staging shouldn't join** — joins belong in intermediate
+- **`source()` takes TWO args**: source name, table name
+- **`analyses/`** is NEVER run by `dbt run` — ad-hoc only
+- **Ephemeral models** don't exist in the DB — can't query them in DuckDB CLI directly
+- **`+model`** = upstream/ancestors · **`model+`** = downstream/descendants
+
+---
+
+<!-- _class: lead -->
+
+# That's it.
+
+## Print this. Carry it. Memorize it.
+
+*Then go drill the 50 practice questions.*
