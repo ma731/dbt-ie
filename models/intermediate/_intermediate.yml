@@ -78,3 +78,38 @@ models:
         tests: [not_null]
       - name: is_first_order
         tests: [not_null]
+
+unit_tests:
+  - name: payment_status_paid_when_only_completed
+    description: Single completed payment yields payment_status_summary = paid.
+    model: int_payments_by_order
+    given:
+      - input: ref('stg_payments')
+        rows:
+          - {order_id: 1, payment_date: '2025-01-01', payment_method: card, amount: 100.0, status: completed}
+    expect:
+      rows:
+        - {order_id: 1, payment_count: 1, successful_payment_count: 1, total_paid_amount: 100.0, primary_payment_method: card, has_successful_payment: true, payment_status_summary: paid}
+
+  - name: payment_status_unpaid_when_no_completed
+    description: All payments failed yields payment_status_summary = unpaid.
+    model: int_payments_by_order
+    given:
+      - input: ref('stg_payments')
+        rows:
+          - {order_id: 2, payment_date: '2025-01-01', payment_method: card, amount: 100.0, status: failed}
+    expect:
+      rows:
+        - {order_id: 2, payment_count: 1, successful_payment_count: 0, total_paid_amount: , primary_payment_method: card, has_successful_payment: false, payment_status_summary: unpaid}
+
+  - name: payment_status_partially_paid_when_mix
+    description: Mix of completed and non-completed payments yields partially_paid.
+    model: int_payments_by_order
+    given:
+      - input: ref('stg_payments')
+        rows:
+          - {order_id: 3, payment_date: '2025-01-01', payment_method: card, amount: 100.0, status: completed}
+          - {order_id: 3, payment_date: '2025-01-02', payment_method: card, amount:  50.0, status: failed}
+    expect:
+      rows:
+        - {order_id: 3, payment_count: 2, successful_payment_count: 1, total_paid_amount: 100.0, primary_payment_method: card, has_successful_payment: true, payment_status_summary: partially_paid}
