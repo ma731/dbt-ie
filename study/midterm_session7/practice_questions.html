@@ -218,7 +218,15 @@
       &nbsp;·&nbsp;
       Score: <strong id="percent">—</strong>
     </div>
-    <button class="reset" onclick="resetQuiz()">Reset</button>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="reset" onclick="toggleWrongOnly()" id="filter-btn" style="background:#dd6b20;">Show wrong only</button>
+      <button class="reset" onclick="resetQuiz()">Reset</button>
+    </div>
+  </div>
+
+  <div id="misses-summary" style="display:none; background:#fff5f5; border:1px solid #fc8181; border-radius:8px; padding:14px 18px; margin-bottom:18px;">
+    <strong style="color:#c53030;">Questions you missed:</strong>
+    <div id="misses-list" style="margin-top:6px; font-family:monospace; font-size:14px;"></div>
   </div>
 
   <div id="quiz"></div>
@@ -412,6 +420,7 @@ for (const section of questions) {
 }
 
 let state = JSON.parse(localStorage.getItem('quizState') || '{}');
+let wrongOnly = false;
 
 function render() {
   const quiz = document.getElementById('quiz');
@@ -420,14 +429,21 @@ function render() {
   let sectionIdx = 0;
   flatQuestions.forEach((q, i) => {
     if (sections[sectionIdx] && i === sections[sectionIdx].startIndex) {
-      const h = document.createElement('div');
-      h.className = 'section-header';
-      h.textContent = sections[sectionIdx].title;
-      quiz.appendChild(h);
       sectionIdx++;
     }
     const answered = state[i] !== undefined;
     const correct = answered && state[i] === q.a;
+    if (wrongOnly && (!answered || correct)) return; // hide if not wrong
+    // section header (only if not in wrong-only mode, or if section has wrong items)
+    if (!wrongOnly) {
+      const matchingSection = sections.find(s => s.startIndex === i);
+      if (matchingSection) {
+        const h = document.createElement('div');
+        h.className = 'section-header';
+        h.textContent = matchingSection.title;
+        quiz.appendChild(h);
+      }
+    }
     const div = document.createElement('div');
     div.className = 'question' + (answered ? ' answered ' + (correct ? 'correct' : 'wrong') : '');
     div.id = 'q-' + i;
@@ -470,6 +486,31 @@ function updateProgress() {
   document.getElementById('correct-count').textContent = '✓ ' + correct;
   document.getElementById('wrong-count').textContent = '✗ ' + wrong;
   document.getElementById('percent').textContent = answered === 0 ? '—' : Math.round(100 * correct / answered) + '%';
+
+  // Update misses summary
+  const missedIndexes = Object.entries(state)
+    .filter(([i, a]) => flatQuestions[i].a !== a)
+    .map(([i]) => parseInt(i, 10))
+    .sort((a, b) => a - b);
+  const summary = document.getElementById('misses-summary');
+  const list = document.getElementById('misses-list');
+  if (missedIndexes.length > 0) {
+    summary.style.display = 'block';
+    list.innerHTML = missedIndexes.map(i => {
+      const sectionTitle = sections.slice().reverse().find(s => s.startIndex <= i).title.split('—')[0].trim();
+      return `<span style="display:inline-block; margin:3px 6px 3px 0; padding:3px 8px; background:#fed7d7; border-radius:4px; cursor:pointer;" onclick="document.getElementById('q-${i}').scrollIntoView({behavior:'smooth',block:'center'})">Q${i+1} <span style="color:#742a2a; font-size:11px;">(${sectionTitle})</span></span>`;
+    }).join('');
+  } else {
+    summary.style.display = 'none';
+  }
+}
+
+function toggleWrongOnly() {
+  wrongOnly = !wrongOnly;
+  const btn = document.getElementById('filter-btn');
+  btn.textContent = wrongOnly ? 'Show all' : 'Show wrong only';
+  btn.style.background = wrongOnly ? '#c53030' : '#dd6b20';
+  render();
 }
 
 function resetQuiz() {
