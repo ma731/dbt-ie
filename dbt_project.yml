@@ -19,4 +19,6 @@ clean-targets:
 models:
   dbt_ie:
     staging:
-      materialized: view
+      +materialized: view
+    intermediate:
+      +materialized: view
