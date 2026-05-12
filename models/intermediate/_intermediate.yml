@@ -86,7 +86,7 @@ unit_tests:
     given:
       - input: ref('stg_payments')
         rows:
-          - {order_id: 1, payment_date: '2025-01-01', payment_method: card, amount: 100.0, status: completed}
+          - {payment_id: pay_1, order_id: 1, payment_method: card, amount: 100.0, status: completed}
     expect:
       rows:
         - {order_id: 1, payment_count: 1, successful_payment_count: 1, total_paid_amount: 100.0, primary_payment_method: card, has_successful_payment: true, payment_status_summary: paid}
@@ -97,10 +97,10 @@ unit_tests:
     given:
       - input: ref('stg_payments')
         rows:
-          - {order_id: 2, payment_date: '2025-01-01', payment_method: card, amount: 100.0, status: failed}
+          - {payment_id: pay_2, order_id: 2, payment_method: card, amount: 100.0, status: failed}
     expect:
       rows:
-        - {order_id: 2, payment_count: 1, successful_payment_count: 0, total_paid_amount: , primary_payment_method: card, has_successful_payment: false, payment_status_summary: unpaid}
+        - {order_id: 2, payment_count: 1, successful_payment_count: 0, total_paid_amount: 0.0, primary_payment_method: card, has_successful_payment: false, payment_status_summary: unpaid}
 
   - name: payment_status_partially_paid_when_mix
     description: Mix of completed and non-completed payments yields partially_paid.
@@ -108,8 +108,8 @@ unit_tests:
     given:
       - input: ref('stg_payments')
         rows:
-          - {order_id: 3, payment_date: '2025-01-01', payment_method: card, amount: 100.0, status: completed}
-          - {order_id: 3, payment_date: '2025-01-02', payment_method: card, amount:  50.0, status: failed}
+          - {payment_id: pay_3a, order_id: 3, payment_method: card, amount: 100.0, status: completed}
+          - {payment_id: pay_3b, order_id: 3, payment_method: card, amount:  50.0, status: failed}
     expect:
       rows:
         - {order_id: 3, payment_count: 2, successful_payment_count: 1, total_paid_amount: 100.0, primary_payment_method: card, has_successful_payment: true, payment_status_summary: partially_paid}

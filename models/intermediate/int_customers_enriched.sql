@@ -1,5 +1,4 @@
 with customers as (
-
     select
         customer_id,
         first_name,
@@ -8,20 +7,16 @@ with customers as (
         country,
         customer_segment
     from {{ ref('stg_customers') }}
-
 ),
 
 customer_segments as (
-
     select
         segment_id,
         customer_segment
     from {{ ref('segments') }}
-
 ),
 
-enriched as (
-
+merged as (
     select
         customers.customer_id,
         customers.first_name,
@@ -34,7 +29,16 @@ enriched as (
         customer_segments.segment_id
     from customers
     left join customer_segments using (customer_segment)
-
 )
 
-select * from enriched
+select
+    customer_id,
+    first_name,
+    last_name,
+    full_name,
+    email,
+    email_domain,
+    country,
+    customer_segment,
+    segment_id
+from merged
