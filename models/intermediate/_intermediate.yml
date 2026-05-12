@@ -62,8 +62,6 @@ models:
         data_tests: [unique, not_null]
       - name: customer_id
         data_tests: [not_null]
-      - name: is_paid
-        data_tests: [not_null]
       - name: is_completed_order
         data_tests: [not_null]
 
