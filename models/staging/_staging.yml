@@ -1,0 +1,107 @@
+version: 2
+
+models:
+  - name: stg_categories
+    columns:
+      - name: category_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_customer_addresses
+    columns:
+      - name: address_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_inventory
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - product_id
+            - warehouse
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+      - name: warehouse
+        tests:
+          - not_null
+
+  - name: stg_marketing_campaigns
+    columns:
+      - name: campaign_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_order_items
+    columns:
+      - name: order_item_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_payments
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_products
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_returns
+    columns:
+      - name: return_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_reviews
+    columns:
+      - name: review_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_shipping
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_suppliers
+    columns:
+      - name: supplier_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_website_sessions
+    columns:
+      - name: session_id
+        tests:
+          - unique
+          - not_null
