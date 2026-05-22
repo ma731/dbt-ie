@@ -12,5 +12,6 @@
   "files.associations": {
     "*.sql": "jinja-sql",
     "*.mmd": "mermaid"
-  }
+  },
+  "dbt.perspectiveTheme": "Vintage"
 }
