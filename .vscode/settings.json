@@ -1,4 +1,5 @@
 {
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
   "dbt.profilesDirOverride": "${workspaceFolder}",
   "terminal.integrated.env.osx": {
     "DBT_PROFILES_DIR": "${workspaceFolder}"
@@ -13,5 +14,21 @@
     "*.sql": "jinja-sql",
     "*.mmd": "mermaid"
   },
-  "dbt.perspectiveTheme": "Vintage"
+  "files.exclude": {
+    "**/dbt_packages": true,
+    "**/target": true,
+    "**/logs": true
+  },
+  "search.exclude": {
+    "**/dbt_packages": true,
+    "**/target": true,
+    "**/logs": true
+  },
+  "files.watcherExclude": {
+    "**/dbt_packages/**": true,
+    "**/target/**": true,
+    "**/logs/**": true
+  },
+  "dbt.perspectiveTheme": "Vintage",
+  "makefile.configureOnOpen": false
 }
