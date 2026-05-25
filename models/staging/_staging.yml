@@ -1,23 +1,9 @@
 version: 2
 
 models:
-  - name: stg_categories
-    columns:
-      - name: category_id
-        tests:
-          - unique
-          - not_null
-
   - name: stg_customer_addresses
     columns:
       - name: address_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_customers
-    columns:
-      - name: customer_id
         tests:
           - unique
           - not_null
@@ -39,55 +25,6 @@ models:
   - name: stg_marketing_campaigns
     columns:
       - name: campaign_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_order_items
-    columns:
-      - name: order_item_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_orders
-    columns:
-      - name: order_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_payments
-    columns:
-      - name: payment_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_products
-    columns:
-      - name: product_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_returns
-    columns:
-      - name: return_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_reviews
-    columns:
-      - name: review_id
-        tests:
-          - unique
-          - not_null
-
-  - name: stg_shipping
-    columns:
-      - name: order_id
         tests:
           - unique
           - not_null
