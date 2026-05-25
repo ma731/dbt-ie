@@ -70,9 +70,7 @@ enriched as (
         payments.total_paid_amount,
         payments.primary_payment_method,
         payments.payment_status_summary,
-        case when orders_with_items.status = 'completed' then true else false end as is_completed_order,
-        case when orders_with_items.status = 'cancelled' then true else false end as is_cancelled_order,
-        case when orders_with_items.status = 'refunded' then true else false end as is_refunded_order,
+        {{ generate_status_flags('orders_with_items.status', ['completed', 'cancelled', 'refunded'], suffix='_order') }},
         payments.has_successful_payment as is_paid
     from orders_with_items
     left join shipping using (order_id)

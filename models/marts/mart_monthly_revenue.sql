@@ -10,14 +10,14 @@ with orders as (
 
 monthly as (
     select
-        strftime(cast(order_date as date), '%Y-%m') as order_month,
+        {{ date_trunc_to_period('order_date', 'month') }} as order_month,
         count(*) as order_count,
         sum(total_amount) as gross_revenue,
         sum(case when is_completed_order then total_amount else 0 end) as completed_revenue,
         sum(case when is_cancelled_order or is_refunded_order then total_amount else 0 end) as cancelled_or_refunded_revenue,
         avg(total_amount) as average_order_value
     from orders
-    group by strftime(cast(order_date as date), '%Y-%m')
+    group by {{ date_trunc_to_period('order_date', 'month') }}
 )
 
 select

@@ -27,8 +27,8 @@ merged as (
         shipping.ship_date,
         shipping.estimated_delivery,
         shipping.actual_delivery,
-        datediff('day', cast(orders.order_date as date), cast(shipping.ship_date as date)) as days_to_ship,
-        datediff('day', cast(shipping.estimated_delivery as date), cast(shipping.actual_delivery as date)) as days_late,
+        {{ datediff_days('orders.order_date', 'shipping.ship_date') }} as days_to_ship,
+        {{ datediff_days('shipping.estimated_delivery', 'shipping.actual_delivery') }} as days_late,
         case
             when shipping.actual_delivery > shipping.estimated_delivery then true
             else false
